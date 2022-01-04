@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>ai.platon.ocean.panel</groupId>
+		<artifactId>ocean-panel</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>web-service</artifactId>
+	<packaging>war</packaging>
+	<name>Web Service</name>
+	<description>The panel web service</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>ai.platon.ocean.panel</groupId>
+			<artifactId>crawler</artifactId>
+			<version>${parent.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ai.platon.pulsar</groupId>
+			<artifactId>pulsar-dom</artifactId>
+			<version>${pulsar.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-rest</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<!-- Support Java 8 date/time type -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-kotlin</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<version>8.0.1</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<defaultGoal>package</defaultGoal>
+
+		<sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+		<testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>2.5.4</version>
+				<configuration>
+					<addResources>true</addResources>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<warName>panel</warName>
+					<!-- TODO: not working -->
+<!--					<packagingExcludes>-->
+<!--						WEB-INF/lib/spring-*.jar,-->
+<!--						WEB-INF/lib/kotlin*.jar,-->
+<!--						WEB-INF/lib/jackson-*.jar,-->
+<!--						WEB-INF/lib/tomcat*.jar,-->
+<!--						WEB-INF/lib/log4j*.jar,-->
+<!--						WEB-INF/lib/logback*.jar,-->
+<!--						WEB-INF/lib/slf4j*.jar,-->
+<!--					</packagingExcludes>-->
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>ai.platon.ocean.panel</groupId>
+        <artifactId>ocean-panel</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>crawler</artifactId>
+    <packaging>jar</packaging>
+    <name>Crawler</name>
+    <description>The crawler</description>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>ai.platon.pulsar</groupId>
+            <artifactId>pulsar-kotlin-driver</artifactId>
+            <version>1.6.12-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ai.platon.pulsar</groupId>
+            <artifactId>pulsar-common</artifactId>
+            <version>1.6.6-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>ai.platon.pulsar</groupId>
+            <artifactId>pulsar-dom</artifactId>
+            <version>1.6.6-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+</project>
