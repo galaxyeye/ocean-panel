@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<configuration scan="true" scanPeriod="20 seconds" debug="false">
+<configuration scan="true" scanPeriod="30 seconds" debug="false">
     <property name="logging.dir" value="${logging.dir:-logs}" />
-    <property name="logging.prefix" value="${logging.prefix:-exotic-server}" />
+    <property name="logging.prefix" value="${logging.prefix:-exotics}" />
     <property name="logging.file" value="${logging.prefix}.log" />
+
+    <!-- Special task relative logs -->
+    <property name="logging.c.file" value="${logging.prefix}.c.log" />
+    <property name="logging.m.file" value="${logging.prefix}.m.log" />
+    <property name="logging.sql.file" value="${logging.prefix}.sql.log" />
 
     <!--0. 日志格式和颜色渲染 -->
     <!-- 彩色日志依赖的渲染类 -->
@@ -15,8 +20,7 @@
 
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
-<!--            <pattern>${CONSOLE_LOG_PATTERN}</pattern>-->
-            <pattern>%d{HH:mm:ss.SSS} [%.10thread] %-5level %logger{16} - %msg%n</pattern>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
         </layout>
     </appender>
     <appender name="DRFA" class="ch.qos.logback.core.rolling.RollingFileAppender">
@@ -29,18 +33,82 @@
         </rollingPolicy>
     </appender>
 
+    <appender name="METRICS" class="ch.qos.logback.core.FileAppender">
+        <File>${logging.dir}/${logging.m.file}</File>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{ISO8601} --- %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="COUNTERS" class="ch.qos.logback.core.FileAppender">
+        <File>${logging.dir}/${logging.c.file}</File>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{ISO8601} --- %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SQL" class="ch.qos.logback.core.FileAppender">
+        <File>${logging.dir}/${logging.sql.file}</File>
+        <encoder>
+            <pattern>%d{ISO8601} --- %m%n</pattern>
+        </encoder>
+    </appender>
+
     <root level="${log.level:-INFO}">
         <appender-ref ref="DRFA"/>
         <appender-ref ref="Console"/>
     </root>
 
-    <logger name="org.springframework.core" level="INFO"/>
-    <logger name="org.springframework.core.env" level="INFO"/>
+    <logger name="ai.platon.scent" level="INFO"/>
+    <logger name="ai.platon.scent.rest.api" level="INFO"/>
+
+    <logger name="ai.platon.scent.proxy" level="INFO"/>
+    <logger name="ai.platon.scent.crawl.parser" level="INFO"/>
+    <logger name="ai.platon.scent.rest.api.schedule" level="DEBUG"/>
+    <logger name="ai.platon.scent.rest.api.service.scrape" level="INFO"/>
+    <logger name="ai.platon.scent.ql" level="TRACE"/>
+
+    <logger name="ai.platon.pulsar.common.metrics.AppMetrics" level="INFO" additivity="false">
+        <appender-ref ref="METRICS"/>
+    </logger>
+
+    <logger name="ai.platon.pulsar.common.CounterReporter" level="INFO" additivity="false">
+        <appender-ref ref="COUNTERS"/>
+    </logger>
+    <logger name="ai.platon.pulsar.ql.h2.utils.Jdbc" level="INFO" additivity="false">
+        <appender-ref ref="SQL"/>
+    </logger>
+
+    <logger name="ai.platon.pulsar" level="INFO"/>
+    <logger name="ai.platon.pulsar.common.distributed.lock" level="INFO"/>
+    <logger name="ai.platon.pulsar.ql" level="TRACE"/>
+    <logger name="ai.platon.pulsar.net" level="INFO"/>
+    <logger name="ai.platon.pulsar.browser" level="INFO"/>
+    <logger name="ai.platon.pulsar.parse.html" level="INFO"/>
+    <logger name="ai.platon.pulsar.crawl.parse" level="INFO"/>
+    <logger name="ai.platon.pulsar.crawl.component" level="INFO"/>
+    <logger name="ai.platon.pulsar.crawl" level="INFO"/>
+    <logger name="ai.platon.pulsar.crawl.protocol" level="INFO"/>
+    <logger name="ai.platon.pulsar.protocol.browser" level="INFO"/>
+    <logger name="ai.platon.pulsar.protocol.browser.driver" level="INFO"/>
+
+    <logger name="ai.platon.pulsar.protocol.browser.emulator.BrowserEmulateEventHandler" level="INFO"/>
+    <logger name="ai.platon.pulsar.protocol.browser.emulator.context" level="INFO"/>
+
+    <logger name="org.springframework.core" level="DEBUG"/>
+    <logger name="org.springframework.core.env" level="DEBUG"/>
 
     <logger name="org.springframework.orm.jpa" level="INFO"/>
     <logger name="org.springframework.transaction" level="INFO"/>
 
-    <logger name="org.hibernate.cache" level="DEBUG"/>
-<!--    <logger name="org.hibernate.SQL" level="DEBUG"/>-->
-    <logger name="net.sf.ehcache.store" level="DEBUG"/>
+    <logger name="org.apache.hadoop.conf.Configuration" level="WARN"/>
+    <logger name="org.apache.gora" level="ERROR"/>
+    <logger name="org.apache.zookeeper" level="ERROR"/>
+    <logger name="org.apache.solr" level="INFO"/>
+    <logger name="org.apache.hadoop" level="WARN"/>
+    <logger name="io.netty" level="WARN"/>
+    <logger name="io.netty.handler.logging" level="INFO"/>
+
 </configuration>

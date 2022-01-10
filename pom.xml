@@ -36,13 +36,13 @@
 		</repository>
 	</repositories>
 
-	<properties>
-		<java.version>11</java.version>
-		<kotlin.version>1.5.21</kotlin.version>
-		<mysql.connector.version>5.1.34</mysql.connector.version>
-		<pulsar.version>1.6.6</pulsar.version>
-		<scent.version>1.6.13-SNAPSHOT</scent.version>
-	</properties>
+	<modules>
+		<module>exotic-client</module>
+		<module>exotic-server</module>
+		<module>exotic-services</module>
+
+		<module>exotic-app</module>
+	</modules>
 
 	<dependencies>
 		<dependency>
@@ -87,7 +87,7 @@
 
 	<build>
 
-		<defaultGoal>install</defaultGoal>
+		<defaultGoal>package</defaultGoal>
 
 		<pluginManagement>
 			<plugins>
@@ -253,9 +253,11 @@
 		</plugins>
 	</build>
 
-	<modules>
-		<module>exotic-crawler</module>
-		<module>exotic-server</module>
-		<module>exotic-web</module>
-	</modules>
+	<properties>
+		<java.version>11</java.version>
+		<kotlin.version>1.5.21</kotlin.version>
+		<mysql.connector.version>5.1.34</mysql.connector.version>
+		<pulsar.version>1.6.6.1</pulsar.version>
+		<scent.version>1.6.14</scent.version>
+	</properties>
 </project>
