@@ -34,7 +34,7 @@ class IntegratedProductConverter: ModelConverter() {
         val p = IntegratedProduct()
         val stat = ProductStatistics()
 
-        p.id = i(props, "id")
+        p.id = l(props, "id")
         p.site = s(props, "site")
         p.bigImgUrl = s(props, "bigImgUrl")
         p.productName = s(props, "productName") ?: s(props, "productTitle")

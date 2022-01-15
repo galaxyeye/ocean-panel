@@ -31,6 +31,14 @@ open class ModelConverter {
         return i(props[underlineStyle(name)]?.toString(), defaultValue)
     }
 
+    fun l(f: Any?, defaultValue: Long = 0): Long {
+        return f?.toString()?.toLongOrNull() ?: defaultValue
+    }
+
+    fun l(props: Map<String, Any?>, name: String, defaultValue: Long = 0): Long {
+        return l(props[underlineStyle(name)]?.toString(), defaultValue)
+    }
+
     fun f(f: Any?, defaultValue: Float = -1.0f): Float {
         return f?.toString()?.toFloatOrNull() ?: defaultValue
     }

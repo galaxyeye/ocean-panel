@@ -15,7 +15,7 @@ import java.util.*
 
 @Repository
 interface FullFieldProductRepository : JpaRepository<FullFieldProduct, Serializable> {
-    fun findAllByIdGreaterThan(id: Int): List<FullFieldProduct>
+    fun findAllByIdGreaterThan(id: Long): List<FullFieldProduct>
 }
 
 @Repository

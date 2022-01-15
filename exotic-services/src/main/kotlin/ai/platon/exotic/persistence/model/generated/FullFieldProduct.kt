@@ -9,7 +9,7 @@ class FullFieldProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    var id: Int = 0
+    var id: Long = 0
 
     @Column(name = "uri", length = 1024)
     var uri: String? = null

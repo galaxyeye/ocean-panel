@@ -2,8 +2,8 @@ package ai.platon.exotic.component
 
 import ai.platon.exotic.common.FETCH_LIMIT
 import ai.platon.exotic.common.PROP_FETCH_NEXT_OFFSET
-import ai.platon.exotic.crawl.MultiScraper
-import ai.platon.exotic.crawl.entity.ProductDetail
+import ai.platon.exotic.crawl.ExoticCrawler
+import ai.platon.exotic.crawl.entity.ItemPageModel
 import ai.platon.exotic.entity.SysProp
 import ai.platon.exotic.persistence.IntegratedProductRepository
 import ai.platon.exotic.persistence.SysPropRepository
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class ScrapeResultCollector(
-    private val scraper: MultiScraper,
+    private val scraper: ExoticCrawler,
     private val sysPropRepository: SysPropRepository,
     private val integratedProductRepository: IntegratedProductRepository,
 ) {
@@ -22,11 +22,11 @@ class ScrapeResultCollector(
 
     fun synchronizeProducts() {
         var batchSize = 50
-        val pendingProducts = scraper.pendingProducts
+        val pendingProducts = scraper.pendingItems
         val pendingProductCount = pendingProducts.size
-        val productDetails = mutableListOf<ProductDetail>()
+        val productDetails = mutableListOf<ItemPageModel>()
         while (batchSize-- > 0 && pendingProducts.isNotEmpty()) {
-            val productDetail = scraper.pendingProducts.poll()
+            val productDetail = scraper.pendingItems.poll()
             if (productDetail != null) {
                 productDetails.add(productDetail)
             }
@@ -35,8 +35,11 @@ class ScrapeResultCollector(
         val converter = IntegratedProductConverter()
         val unfilteredProducts = productDetails.map { converter.convert(it.properties) }
         val qualifiedResults = unfilteredProducts.filter { it.second.isQualified }
-        val products = qualifiedResults.map { it.first }
+        if (qualifiedResults.isEmpty()) {
+            return
+        }
 
+        val products = qualifiedResults.map { it.first }
         val stat = IntegratedProductConverter.globalStatistics
         logger.info("Synchronized {}/{} products, nn: {}/{}, np: {}/{}",
             products.size, pendingProductCount,
@@ -51,7 +54,7 @@ class ScrapeResultCollector(
         var offset = prop?.value?.toLongOrNull() ?: 275406
         val limit = FETCH_LIMIT
 
-        val driver = scraper.jdScraper.driver
+        val driver = scraper.driver
 
         /**
          * TODO: properly handle unfinished tasks

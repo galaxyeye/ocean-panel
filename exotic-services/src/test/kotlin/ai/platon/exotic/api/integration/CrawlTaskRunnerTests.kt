@@ -1,4 +1,4 @@
-package ai.platon.exotic.api
+package ai.platon.exotic.api.integration
 
 import ai.platon.exotic.common.jackson.prettyScentObjectWritter
 import ai.platon.exotic.common.jackson.scentObjectMapper
@@ -19,7 +19,7 @@ class CrawlTaskRunnerTests @Autowired constructor(
 ) {
     val scraper get() = crawlTaskRunner.scraper
 
-    val driver get() = scraper.jdScraper.driver
+    val driver get() = scraper.driver
 
     @Test
     fun testCrawlTaskRunner() {

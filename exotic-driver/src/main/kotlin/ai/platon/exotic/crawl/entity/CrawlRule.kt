@@ -20,25 +20,34 @@ class CrawlRule {
     @Column(name = "id", nullable = false)
     var id: Long? = null
 
-    @Column(name = "name")
+    @Column(name = "name", length = 32)
     var name: String = randomName()
 
-    @Column(name = "label")
+    @Column(name = "label", length = 64)
     var label: String? = null
 
     @Lob
     @Column(name = "portal_urls")
     var portalUrls: String = ""
 
-    @Column(name = "description")
+    @Column(name = "out_link_selector", length = 64)
+    var outLinkSelector: String? = null
+
+    @Lob
+    @Column(name = "sql_template")
+    var sqlTemplate: String? = null
+
+    @Column(name = "description", length = 128)
     var description: String? = null
+
+    @Column(name = "next_page_selector", length = 64)
+    var nextPageSelector: String? = null
 
     @Column(name = "max_pages")
     var maxPages: Int = 30
 
     @Column(name = "start_time")
-    var startTime: LocalDateTime = EPOCH_LDT
-        .truncatedTo(ChronoUnit.SECONDS)
+    var startTime: LocalDateTime = EPOCH_LDT.truncatedTo(ChronoUnit.SECONDS)
 
     @Column(name = "dead_time")
     var deadTime: LocalDateTime = LocalDateTime.parse("2200-01-01T08:00")
@@ -53,7 +62,7 @@ class CrawlRule {
     /**
      * Enum: Created, Running, Paused
      * */
-    @Column(name = "status")
+    @Column(name = "status", length = 8)
     var status: String = "Created"
 
     @CreatedDate
@@ -84,6 +93,5 @@ class CrawlRule {
 
         name = name.takeIf { it.isNotBlank() } ?: randomName()
         label = label ?: ""
-        maxPages = maxPages ?: 30
     }
 }

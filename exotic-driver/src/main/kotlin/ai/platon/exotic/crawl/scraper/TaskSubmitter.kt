@@ -20,7 +20,7 @@ open class TaskSubmitter(
     private val autoCollect: Boolean = true,
 ) {
     var logger: Logger = LoggerFactory.getLogger(TaskSubmitter::class.java)
-    val driver = Driver(server, authToken, httpTimeout)
+    var driver = Driver(server, authToken, httpTimeout)
 
     val pendingTasks: MutableMap<String, ListenableScrapeTask> = ConcurrentSkipListMap()
     val timeoutTasks: MutableMap<String, ListenableScrapeTask> = ConcurrentSkipListMap()

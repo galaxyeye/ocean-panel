@@ -31,7 +31,7 @@ class PortalTask(
     /**
      * The server side id
      * */
-    var sid: String = ""
+    var serverTaskId: String = ""
 
     var assignedCount: Int = 0
 

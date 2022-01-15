@@ -33,7 +33,7 @@ class CrawlRuleWebController(
     }
 
     @GetMapping("/view/{id}")
-    fun view(@PathVariable id: Int, model: Model): String {
+    fun view(@PathVariable id: Long, model: Model): String {
         model.addAttribute("rule", repository.getById(id))
         return "rules/view"
     }

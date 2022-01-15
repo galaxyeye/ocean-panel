@@ -29,7 +29,7 @@ class CrawlTaskWebController(
     }
 
     @GetMapping("/view/{id}")
-    fun view(@PathVariable id: Int, model: Model): String {
+    fun view(@PathVariable id: Long, model: Model): String {
         model.addAttribute("task", repository.getById(id))
         return "crawl/tasks/view"
     }

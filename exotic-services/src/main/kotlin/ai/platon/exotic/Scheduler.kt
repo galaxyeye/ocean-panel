@@ -1,7 +1,9 @@
 package ai.platon.exotic
 
+import ai.platon.exotic.common.DEV_MAX_PENDING_TASKS
+import ai.platon.exotic.common.PRODUCT_MAX_PENDING_TASKS
 import ai.platon.exotic.common.isDevelopment
-import ai.platon.exotic.crawl.MultiScraper
+import ai.platon.exotic.crawl.ExoticCrawler
 import ai.platon.pulsar.common.DateTimes.MILLIS_OF_MINUTE
 import ai.platon.pulsar.common.DateTimes.MILLIS_OF_SECOND
 import ai.platon.pulsar.common.stringify
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Component
 @Component
 @EnableScheduling
 class Scheduler(
-    private val scraper: MultiScraper,
+    private val exoticCrawler: ExoticCrawler,
     private val portalTaskRepository: PortalTaskRepository,
     private val crawlTaskRunner: CrawlTaskRunner,
     private val crawlResultChecker: ScrapeResultCollector,
@@ -30,7 +32,7 @@ class Scheduler(
 
     private val logger = LoggerFactory.getLogger(Scheduler::class.java)
 
-    val submitter get() = scraper.jdScraper.outPageScraper.taskSubmitter
+    val submitter get() = exoticCrawler.outPageScraper.taskSubmitter
 
     @Bean
     fun runStartupTasks() {
@@ -50,8 +52,8 @@ class Scheduler(
     @Scheduled(initialDelay = INITIAL_DELAY_2, fixedDelay = 10 * MILLIS_OF_SECOND)
     fun runPortalTasksWhenFew() {
         try {
-            val submitter = scraper.jdScraper.outPageScraper.taskSubmitter
-            val maxPendingTaskCount = if (isDevelopment) 2 else 50
+            val submitter = exoticCrawler.outPageScraper.taskSubmitter
+            val maxPendingTaskCount = if (isDevelopment) DEV_MAX_PENDING_TASKS else PRODUCT_MAX_PENDING_TASKS
             val pendingTaskCount = submitter.pendingTaskCount
 
             if (pendingTaskCount >= maxPendingTaskCount) {
@@ -78,7 +80,7 @@ class Scheduler(
         portalTasks.forEach { it.status = "Finished" }
         portalTaskRepository.saveAll(portalTasks)
 
-        portalTasks.forEach { submitter.finishedTasks.remove(it.sid) }
+        portalTasks.forEach { submitter.finishedTasks.remove(it.serverTaskId) }
     }
 
     @Scheduled(initialDelay = INITIAL_DELAY_3, fixedDelay = 30 * MILLIS_OF_SECOND)

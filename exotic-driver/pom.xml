@@ -8,19 +8,12 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>exotic-client</artifactId>
+    <artifactId>exotic-driver</artifactId>
     <packaging>jar</packaging>
-    <name>Exotic Client</name>
-    <description>The exotic client</description>
+    <name>Exotic Driver</name>
+    <description>The exotic driver</description>
 
     <dependencies>
-
-        <dependency>
-            <groupId>ai.platon.pulsar</groupId>
-            <artifactId>pulsar-kotlin-driver</artifactId>
-            <version>1.6.13</version>
-        </dependency>
-
         <dependency>
             <groupId>ai.platon.pulsar</groupId>
             <artifactId>pulsar-common</artifactId>
@@ -30,6 +23,12 @@
             <groupId>ai.platon.pulsar</groupId>
             <artifactId>pulsar-dom</artifactId>
             <version>${pulsar.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ai.platon.pulsar</groupId>
+            <artifactId>pulsar-kotlin-driver</artifactId>
+            <version>${pulsar.driver.version}</version>
         </dependency>
 
         <dependency>

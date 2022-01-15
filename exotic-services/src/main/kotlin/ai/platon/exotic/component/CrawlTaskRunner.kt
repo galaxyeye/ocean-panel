@@ -1,7 +1,7 @@
 package ai.platon.exotic.component
 
 import ai.platon.exotic.common.isDevelopment
-import ai.platon.exotic.crawl.MultiScraper
+import ai.platon.exotic.crawl.ExoticCrawler
 import ai.platon.exotic.crawl.entity.CrawlRule
 import ai.platon.exotic.crawl.entity.PortalTask
 import ai.platon.exotic.crawl.scraper.ListenablePortalTask
@@ -20,19 +20,12 @@ import java.time.temporal.ChronoUnit
 class CrawlTaskRunner(
     val crawlRuleRepository: CrawlRuleRepository,
     val portalTaskRepository: PortalTaskRepository,
-    val scraper: MultiScraper
+    val scraper: ExoticCrawler
 ) {
     private val logger = LoggerFactory.getLogger(CrawlTaskRunner::class.java)
 
     fun loadUnfinishedTasks() {
-//        val tasks = pendingPortalTaskRepository.findAll()
-//        pendingPortalTaskRepository.deleteAll()
-//        val portalTasks = tasks
-//            .map { Gson().fromJson(it.data, PortalTask::class.java) }
-//            .map { ListenablePortalTask(it, true) }
-//
-//        logger.info("Loaded {} unfinished tasks", tasks.size)
-//        portalTasks.forEach { task -> scraper.scrapeOutPages(task) }
+        // portalTaskRepository.findAllByStatus("Running")
     }
 
     fun startCreatedCrawlRules() {
