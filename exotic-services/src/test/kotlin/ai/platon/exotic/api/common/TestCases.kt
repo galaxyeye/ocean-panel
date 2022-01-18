@@ -1,6 +1,6 @@
 package ai.platon.exotic.api.common
 
-import ai.platon.exotic.persistence.converters.ModelConverter
+import ai.platon.exotic.persist.converters.ModelConverter
 import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.LocalDateTime

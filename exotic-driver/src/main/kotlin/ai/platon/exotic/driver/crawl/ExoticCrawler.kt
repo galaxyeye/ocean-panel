@@ -1,12 +1,12 @@
-package ai.platon.exotic.crawl
+package ai.platon.exotic.driver.crawl
 
-import ai.platon.exotic.common.authToken
-import ai.platon.exotic.common.isDevelopment
-import ai.platon.exotic.common.server
-import ai.platon.exotic.crawl.entity.ItemPageModel
-import ai.platon.exotic.crawl.scraper.ListenablePortalTask
-import ai.platon.exotic.crawl.scraper.ListenableScrapeTask
-import ai.platon.exotic.crawl.scraper.OutPageScraper
+import ai.platon.exotic.driver.common.authToken
+import ai.platon.exotic.driver.common.isDevelopment
+import ai.platon.exotic.driver.common.server
+import ai.platon.exotic.driver.crawl.entity.ItemDetail
+import ai.platon.exotic.driver.crawl.scraper.ListenablePortalTask
+import ai.platon.exotic.driver.crawl.scraper.OutPageScraper
+import ai.platon.exotic.driver.crawl.scraper.ScrapeTask
 import org.slf4j.LoggerFactory
 import java.io.IOException
 import java.sql.SQLException
@@ -21,35 +21,33 @@ class ExoticCrawler {
 
     val driver get() = outPageScraper.taskSubmitter.driver
 
-    val maxPendingTaskCount = if (isDevelopment) 10 else 50
-
     val pendingPortalTasks: Deque<ListenablePortalTask> = ConcurrentLinkedDeque()
 
-    val pendingItems = ConcurrentLinkedQueue<ItemPageModel>()
+    val pendingItems = ConcurrentLinkedQueue<ItemDetail>()
+
+    var maxPendingTaskCount = if (isDevelopment) 10 else 50
 
     fun crawl() {
         val taskSubmitter = outPageScraper.taskSubmitter
-        val submittedTaskCount = taskSubmitter.pendingTasks.size
+        val submittedTaskCount = taskSubmitter.pendingTaskCount
 
         if (submittedTaskCount >= maxPendingTaskCount) {
             return
         }
 
         val n = (maxPendingTaskCount - submittedTaskCount).coerceAtMost(10)
-        if (pendingPortalTasks.isEmpty()) {
+        if (pendingPortalTasks.isNotEmpty()) {
             scrapeFromQueue(pendingPortalTasks, n)
-            return
         }
     }
 
     @Throws(Exception::class)
     fun scrapeOutPages(task: ListenablePortalTask) {
         try {
-            scrapeOutPages0(task)
-        } catch (e: SQLException) {
-            logger.warn(e.message)
-        } catch (e: IOException) {
-            logger.warn(e.message)
+//            task.onItemSuccess = {
+//                createPendingItems(it)
+//            }
+            outPageScraper.scrape(task)
         } catch (t: Throwable) {
             logger.warn("Unexpected exception", t)
         }
@@ -65,17 +63,12 @@ class ExoticCrawler {
         }
     }
 
-    @Throws(Exception::class)
-    private fun scrapeOutPages0(portalTask: ListenablePortalTask) {
-        val onItemSuccess: (ListenableScrapeTask) -> Unit = { task: ListenableScrapeTask ->
-            val allowDuplicate = (task.task.ruleId ?: 0L) > 0L
-            task.task.response.resultSet
-                ?.filter { it.isNotEmpty() }
-                ?.map { ItemPageModel.create(it["uri"].toString(), it, allowDuplicate) }
-                ?.toCollection(pendingItems)
-        }
-
-        outPageScraper.scrape(portalTask, onItemSuccess)
+    private fun createPendingItems(task: ScrapeTask) {
+        val allowDuplicate = task.companionPortalTask?.rule != null
+        task.response.resultSet
+            ?.filter { it.isNotEmpty() }
+            ?.map { ItemDetail.create(it["uri"].toString(), it, allowDuplicate) }
+            ?.toCollection(pendingItems)
     }
 }
 

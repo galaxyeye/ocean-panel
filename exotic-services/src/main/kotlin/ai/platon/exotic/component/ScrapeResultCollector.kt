@@ -1,13 +1,13 @@
 package ai.platon.exotic.component
 
-import ai.platon.exotic.common.FETCH_LIMIT
-import ai.platon.exotic.common.PROP_FETCH_NEXT_OFFSET
-import ai.platon.exotic.crawl.ExoticCrawler
-import ai.platon.exotic.crawl.entity.ItemPageModel
+import ai.platon.exotic.driver.common.FETCH_LIMIT
+import ai.platon.exotic.driver.common.PROP_FETCH_NEXT_OFFSET
+import ai.platon.exotic.driver.crawl.ExoticCrawler
+import ai.platon.exotic.driver.crawl.entity.ItemDetail
 import ai.platon.exotic.entity.SysProp
-import ai.platon.exotic.persistence.IntegratedProductRepository
-import ai.platon.exotic.persistence.SysPropRepository
-import ai.platon.exotic.persistence.converters.IntegratedProductConverter
+import ai.platon.exotic.persist.IntegratedProductRepository
+import ai.platon.exotic.persist.SysPropRepository
+import ai.platon.exotic.persist.converters.IntegratedProductConverter
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -24,7 +24,7 @@ class ScrapeResultCollector(
         var batchSize = 50
         val pendingProducts = scraper.pendingItems
         val pendingProductCount = pendingProducts.size
-        val productDetails = mutableListOf<ItemPageModel>()
+        val productDetails = mutableListOf<ItemDetail>()
         while (batchSize-- > 0 && pendingProducts.isNotEmpty()) {
             val productDetail = scraper.pendingItems.poll()
             if (productDetail != null) {

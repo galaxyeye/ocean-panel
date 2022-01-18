@@ -53,6 +53,18 @@
             <groupId>ai.platon.scent</groupId>
             <artifactId>scent-site-amazon</artifactId>
             <version>${scent.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ai.platon.pulsar</groupId>
+                    <artifactId>pulsar-site-amazon</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>ai.platon.pulsar</groupId>
+            <artifactId>pulsar-site-amazon</artifactId>
+            <version>1.7.0-SNAPSHOT</version>
         </dependency>
 
         <!-- for scent-beans/app-context.xml -->

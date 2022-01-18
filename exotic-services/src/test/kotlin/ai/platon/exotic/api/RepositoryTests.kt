@@ -1,14 +1,15 @@
 package ai.platon.exotic.api
 
-import ai.platon.exotic.common.PROP_FETCH_NEXT_OFFSET
-import ai.platon.exotic.crawl.entity.CrawlRule
-import ai.platon.exotic.crawl.entity.PortalTask
+import ai.platon.exotic.driver.common.PROP_FETCH_NEXT_OFFSET
+import ai.platon.exotic.driver.crawl.entity.CrawlRule
+import ai.platon.exotic.driver.crawl.entity.PortalTask
+import ai.platon.exotic.driver.crawl.scraper.TaskStatus
 import ai.platon.exotic.entity.SysProp
-import ai.platon.exotic.persistence.FullFieldProductRepository
-import ai.platon.exotic.persistence.IntegratedProductRepository
-import ai.platon.exotic.persistence.PortalTaskRepository
-import ai.platon.exotic.persistence.SysPropRepository
-import ai.platon.exotic.persistence.model.generated.IntegratedProduct
+import ai.platon.exotic.persist.FullFieldProductRepository
+import ai.platon.exotic.persist.IntegratedProductRepository
+import ai.platon.exotic.persist.PortalTaskRepository
+import ai.platon.exotic.persist.SysPropRepository
+import ai.platon.exotic.persist.model.generated.IntegratedProduct
 import com.google.gson.GsonBuilder
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,7 +51,7 @@ class RepositoryTests @Autowired constructor(
         val portalTasks = pagedPortalUrls.map {
             PortalTask(it, "-refresh", 3).also {
                 it.rule = rule
-                it.status = "Running"
+                it.status = TaskStatus.CREATED
             }
         }
 
@@ -65,7 +66,8 @@ class RepositoryTests @Autowired constructor(
 //        scraper.jdScraper.loadProductOverviews(categoryUrl)
 
         val gson = GsonBuilder().setPrettyPrinting().create()
-        val integratedProducts = fullFieldProductRepository.findAll().map { gson.fromJson(gson.toJson(it), IntegratedProduct::class.java) }
+        val integratedProducts =
+            fullFieldProductRepository.findAll().map { gson.fromJson(gson.toJson(it), IntegratedProduct::class.java) }
         println(gson.toJson(integratedProducts))
         // integratedProductRepository.saveAll(integratedProducts)
     }

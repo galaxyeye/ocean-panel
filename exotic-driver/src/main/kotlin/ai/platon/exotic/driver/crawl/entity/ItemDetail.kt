@@ -1,6 +1,6 @@
-package ai.platon.exotic.crawl.entity
+package ai.platon.exotic.driver.crawl.entity
 
-class ItemPageModel(
+class ItemDetail(
     var uri: String,
     var baseUri: String
 ) {
@@ -8,8 +8,8 @@ class ItemPageModel(
     var allowDuplicate = false
 
     companion object {
-        fun create(uri: String, properties: Map<String, Any?>, allowDuplicate: Boolean = false): ItemPageModel {
-            val product = ItemPageModel(uri, (properties["base_uri"] ?: "").toString())
+        fun create(uri: String, properties: Map<String, Any?>, allowDuplicate: Boolean = false): ItemDetail {
+            val product = ItemDetail(uri, (properties["base_uri"] ?: "").toString())
             product.properties = properties
             product.allowDuplicate = allowDuplicate
             return product

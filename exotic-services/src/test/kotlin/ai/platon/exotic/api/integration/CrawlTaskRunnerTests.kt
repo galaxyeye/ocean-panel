@@ -3,9 +3,9 @@ package ai.platon.exotic.api.integration
 import ai.platon.exotic.common.jackson.prettyScentObjectWritter
 import ai.platon.exotic.common.jackson.scentObjectMapper
 import ai.platon.exotic.component.CrawlTaskRunner
-import ai.platon.exotic.crawl.entity.PortalTask
-import ai.platon.exotic.crawl.scraper.ListenablePortalTask
-import ai.platon.exotic.persistence.converters.IntegratedProductConverter
+import ai.platon.exotic.driver.crawl.entity.PortalTask
+import ai.platon.exotic.driver.crawl.scraper.ListenablePortalTask
+import ai.platon.exotic.persist.converters.IntegratedProductConverter
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,7 +29,7 @@ class CrawlTaskRunnerTests @Autowired constructor(
         """.trimIndent().split("\n").map { it.trim() }
         portalUrls.flatMap { url -> IntRange(1, 30).map { pg -> "$url&page=$pg" } }
             .map { PortalTask(it).apply { priority = 3 } }
-            .map { ListenablePortalTask(it, true) }
+            .map { ListenablePortalTask.create(it).also { it.refresh = true } }
             .forEach { task ->
                 scraper.pendingPortalTasks.addFirst(task)
             }

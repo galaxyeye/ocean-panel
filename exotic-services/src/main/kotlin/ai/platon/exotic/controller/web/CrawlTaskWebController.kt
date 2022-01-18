@@ -1,6 +1,6 @@
 package ai.platon.exotic.controller.web
 
-import ai.platon.exotic.persistence.PortalTaskRepository
+import ai.platon.exotic.persist.PortalTaskRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Controller

@@ -1,4 +1,4 @@
-package ai.platon.exotic.crawl.scraper
+package ai.platon.exotic.driver.crawl.scraper
 
 import ai.platon.pulsar.common.chrono.scheduleAtFixedRate
 import ai.platon.pulsar.driver.Driver
@@ -22,9 +22,14 @@ open class TaskSubmitter(
     var logger: Logger = LoggerFactory.getLogger(TaskSubmitter::class.java)
     var driver = Driver(server, authToken, httpTimeout)
 
-    val pendingTasks: MutableMap<String, ListenableScrapeTask> = ConcurrentSkipListMap()
-    val timeoutTasks: MutableMap<String, ListenableScrapeTask> = ConcurrentSkipListMap()
-    val finishedTasks: MutableMap<String, ListenableScrapeTask> = ConcurrentSkipListMap()
+    private val pendingTasks: MutableMap<String, ListenableScrapeTask> = ConcurrentSkipListMap()
+
+    val pendingPortalTaskCount get() = pendingTasks.count { it.value.task.isPortal }
+    val pendingTaskCount get() = pendingTasks.size
+
+    private val collectTimer = Timer()
+    var collectTimerDelay = Duration.ofSeconds(15)
+    var collectTimerPeriod = Duration.ofSeconds(15)
 
     var taskCount = 0
         private set
@@ -36,11 +41,6 @@ open class TaskSubmitter(
         private set
     var retryTaskCount = 0
         private set
-
-    val pendingPortalTaskCount get() = pendingTasks.count { it.value.task.isPortal }
-    val pendingTaskCount get() = pendingTasks.size
-
-    private val collectTimer = Timer()
 
     init {
         if (autoCollect) {
@@ -69,15 +69,18 @@ open class TaskSubmitter(
         ++taskCount
 
         val task = listenableTask.task
+        val configuredUrl = task.url.trim() + " " + task.args.trim()
+        val sql = SQLTemplate(task.sqlTemplate).createSQL(configuredUrl)
         try {
-            val sql = SQLTemplate(task.sqlTemplate).createSQL(task.url + " " + task.args)
             val id = driver.submit(sql, task.priority, false)
-            task.id = id
+            task.serverTaskId = id
+
+            listenableTask.onSubmitted()
             pendingTasks[id] = listenableTask
         } catch (e: ScrapeException) {
             task.exception = e
             task.exceptionMessage = e.toString()
-            logger.warn("Scrape failed", e)
+            logger.warn("Scrape failed, {}\n{}", e.message, sql)
         }
 
         return listenableTask
@@ -93,23 +96,25 @@ open class TaskSubmitter(
             return listOf()
         }
 
+        val checkBatchSize = 30
         val checkingTasks = pendingTasks.values
             .filter { it.task.shouldCheck }
             .sortedByDescending { it.task.lastCheckTime }
-            .take(30)
+            .take(checkBatchSize)
         if (checkingTasks.isEmpty()) {
             val estimatedWaitTime = pendingTasks.values.minOfOrNull { it.task.response.estimatedWaitTime } ?: -1
-            logger.info("No task to check, next task to wait: {}s", estimatedWaitTime)
+            logger.info("No task to check, next task to wait: {}", estimatedWaitTime)
             return listOf()
         }
-
-        val checkingIds = checkingTasks.map { it.task.id }
-        checkingTasks.forEach { it.task.lastCheckTime = Instant.now() }
 
         var fc = 0
         var rc = 0
         val startTime = Instant.now()
+
+        val checkingIds = checkingTasks.map { it.task.serverTaskId }
         val responses = driver.findAllByIds(checkingIds)
+        checkingTasks.forEach { it.task.lastCheckTime = Instant.now() }
+
         responses.forEach { response ->
             val task = pendingTasks[response.id]
             if (task != null) {
@@ -120,16 +125,16 @@ open class TaskSubmitter(
                         ++finishedTaskCount
 
                         if (response.statusCode == 200) {
-                            task.onSuccess(task)
+                            task.onSuccess()
                         } else {
                             ++failedTaskCount
-                            task.onFailure(task)
+                            task.onFailed()
                         }
                     }
                     response.statusCode == 1601 -> {
                         ++rc
                         ++retryTaskCount
-                        task.onRetry(task)
+                        task.onRetry()
                     }
                 }
             } else {
@@ -139,28 +144,23 @@ open class TaskSubmitter(
         }
 
         val roundFinishedTasks = checkingTasks.filter { it.task.response.isDone }
-        roundFinishedTasks.forEach { pendingTasks.remove(it.task.id) }
-        roundFinishedTasks.associateByTo(finishedTasks) { it.task.id }
+        roundFinishedTasks.forEach { pendingTasks.remove(it.task.serverTaskId) }
 
-        val timeoutTasks0 = pendingTasks.filter { it.value.task.isTimeout }
-        if (timeoutTasks0.isNotEmpty()) {
-            logger.info("Removing {} timeout tasks", timeoutTasks0.size)
-            timeoutTasks0.forEach { pendingTasks.remove(it.key) }
-            timeoutTasks.putAll(timeoutTasks0)
+        val roundTimeoutTasks = pendingTasks.filter { it.value.task.isTimeout }
+        if (roundTimeoutTasks.isNotEmpty()) {
+            logger.info("Removing {} timeout tasks", roundTimeoutTasks.size)
+            roundTimeoutTasks.forEach { pendingTasks.remove(it.key) }
         }
 
-        val estimatedWaitTime = responses.filter { !it.isDone }
-            .minOfOrNull { it.estimatedWaitTime } ?: -1
+        val nextCheckTime = responses.filter { !it.isDone }.minOfOrNull { it.estimatedWaitTime } ?: collectTimerPeriod
         val elapsedTime = Duration.between(startTime, Instant.now())
-        logger.info("Collected {}/{}/{}/{}/{} responses in {}, next task to wait: {}s",
-            fc, rc, responses.size, checkingIds.size, pendingTasks.size, elapsedTime, estimatedWaitTime)
+        logger.info("Collected {}/{}/{}/{}/{} responses in {}, next check: {}",
+            fc, rc, responses.size, checkingIds.size, pendingTasks.size, elapsedTime, nextCheckTime)
 
         return responses
     }
 
     private fun startCollectTimer() {
-        val delay = Duration.ofSeconds(30)
-        val period = Duration.ofSeconds(30)
-        collectTimer.scheduleAtFixedRate(delay, period) { collectTasks() }
+        collectTimer.scheduleAtFixedRate(collectTimerDelay, collectTimerPeriod) { collectTasks() }
     }
 }

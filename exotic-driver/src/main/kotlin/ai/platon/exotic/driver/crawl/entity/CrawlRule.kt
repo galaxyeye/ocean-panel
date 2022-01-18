@@ -1,6 +1,8 @@
-package ai.platon.exotic.crawl.entity
+package ai.platon.exotic.driver.crawl.entity
 
-import ai.platon.exotic.common.EPOCH_LDT
+import ai.platon.exotic.driver.common.EPOCH_LDT
+import ai.platon.exotic.driver.common.DOOMSDAY
+import ai.platon.pulsar.common.DateTimes
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -50,11 +52,13 @@ class CrawlRule {
     var startTime: LocalDateTime = EPOCH_LDT.truncatedTo(ChronoUnit.SECONDS)
 
     @Column(name = "dead_time")
-    var deadTime: LocalDateTime = LocalDateTime.parse("2200-01-01T08:00")
+    var deadTime: LocalDateTime = DOOMSDAY
 
     @Column(name = "last_crawl_time")
-    var lastCrawlTime: LocalDateTime = EPOCH_LDT
-        .truncatedTo(ChronoUnit.SECONDS)
+    var lastCrawlTime: LocalDateTime = EPOCH_LDT.truncatedTo(ChronoUnit.SECONDS)
+
+    @Column(name = "crawl_history", length = 1024)
+    var crawlHistory: String = ""
 
     @Column(name = "period")
     var period: Duration = Duration.ofDays(3650)
@@ -75,6 +79,18 @@ class CrawlRule {
 
     @OneToMany(fetch = FetchType.LAZY)
     val portalTasks: MutableList<PortalTask> = mutableListOf()
+
+    fun buildArgs(): String {
+        val taskTime = LocalDateTime.now().truncatedTo(ChronoUnit.HOURS)
+        val formattedTime = DateTimes.format(taskTime, "YYMMddHH")
+        val taskIdSuffix = id ?: formattedTime
+        val taskId = "r$taskIdSuffix"
+        var args = "-taskId $taskId -taskTime $taskTime"
+        if (deadTime != DOOMSDAY) {
+            args += " -deadTime $deadTime"
+        }
+        return args
+    }
 
     final fun randomName(): String {
         return "T" + RandomStringUtils.randomAlphanumeric(6).lowercase()

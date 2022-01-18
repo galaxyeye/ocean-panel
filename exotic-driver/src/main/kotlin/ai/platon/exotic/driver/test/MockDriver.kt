@@ -1,4 +1,4 @@
-package ai.platon.exotic.test
+package ai.platon.exotic.driver.test
 
 import ai.platon.pulsar.driver.Driver
 import java.time.Duration

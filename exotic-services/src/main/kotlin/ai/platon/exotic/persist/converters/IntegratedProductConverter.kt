@@ -1,6 +1,6 @@
-package ai.platon.exotic.persistence.converters
+package ai.platon.exotic.persist.converters
 
-import ai.platon.exotic.persistence.model.generated.IntegratedProduct
+import ai.platon.exotic.persist.model.generated.IntegratedProduct
 import java.time.Instant
 import kotlin.reflect.full.declaredMemberProperties
 import kotlin.reflect.jvm.isAccessible

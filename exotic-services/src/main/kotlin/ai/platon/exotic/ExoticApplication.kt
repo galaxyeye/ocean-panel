@@ -1,6 +1,6 @@
 package ai.platon.exotic
 
-import ai.platon.exotic.crawl.ExoticCrawler
+import ai.platon.exotic.driver.crawl.ExoticCrawler
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

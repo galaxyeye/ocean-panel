@@ -1,4 +1,4 @@
-package ai.platon.exotic.persistence.model.generated
+package ai.platon.exotic.persist.model.generated
 
 import java.time.Instant
 import javax.persistence.*

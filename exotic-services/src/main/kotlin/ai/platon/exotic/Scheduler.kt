@@ -1,15 +1,14 @@
 package ai.platon.exotic
 
-import ai.platon.exotic.common.DEV_MAX_PENDING_TASKS
-import ai.platon.exotic.common.PRODUCT_MAX_PENDING_TASKS
-import ai.platon.exotic.common.isDevelopment
-import ai.platon.exotic.crawl.ExoticCrawler
-import ai.platon.pulsar.common.DateTimes.MILLIS_OF_MINUTE
+import ai.platon.exotic.driver.common.DEV_MAX_PENDING_TASKS
+import ai.platon.exotic.driver.common.PRODUCT_MAX_PENDING_TASKS
+import ai.platon.exotic.driver.common.isDevelopment
+import ai.platon.exotic.driver.crawl.ExoticCrawler
 import ai.platon.pulsar.common.DateTimes.MILLIS_OF_SECOND
 import ai.platon.pulsar.common.stringify
 import ai.platon.exotic.component.CrawlTaskRunner
 import ai.platon.exotic.component.ScrapeResultCollector
-import ai.platon.exotic.persistence.PortalTaskRepository
+import ai.platon.exotic.persist.PortalTaskRepository
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.scheduling.annotation.EnableScheduling
@@ -25,7 +24,7 @@ class Scheduler(
     private val crawlResultChecker: ScrapeResultCollector,
 ) {
     companion object {
-        const val INITIAL_DELAY = 30 * MILLIS_OF_SECOND
+        const val INITIAL_DELAY = 10 * MILLIS_OF_SECOND
         const val INITIAL_DELAY_2 = 30 * MILLIS_OF_SECOND + 10 * MILLIS_OF_SECOND
         const val INITIAL_DELAY_3 = 30 * MILLIS_OF_SECOND + 20 * MILLIS_OF_SECOND
     }
@@ -54,9 +53,8 @@ class Scheduler(
         try {
             val submitter = exoticCrawler.outPageScraper.taskSubmitter
             val maxPendingTaskCount = if (isDevelopment) DEV_MAX_PENDING_TASKS else PRODUCT_MAX_PENDING_TASKS
-            val pendingTaskCount = submitter.pendingTaskCount
 
-            if (pendingTaskCount >= maxPendingTaskCount) {
+            if (submitter.pendingTaskCount >= maxPendingTaskCount) {
                 return
             }
 
@@ -64,24 +62,24 @@ class Scheduler(
                 return
             }
 
-            crawlTaskRunner.loadAndRunPortalTasks(2)
+            crawlTaskRunner.loadAndSubmitPortalTasks(2)
         } catch (t: Throwable) {
             logger.warn(t.stringify())
         }
     }
 
-    @Scheduled(initialDelay = INITIAL_DELAY_3, fixedDelay = MILLIS_OF_MINUTE)
-    fun updatePortalTaskStatus() {
-        val portalTasks = submitter.finishedTasks.values.mapNotNull { it.task.companionPortalTask }
-        if (portalTasks.isEmpty()) {
-            return
-        }
-
-        portalTasks.forEach { it.status = "Finished" }
-        portalTaskRepository.saveAll(portalTasks)
-
-        portalTasks.forEach { submitter.finishedTasks.remove(it.serverTaskId) }
-    }
+//    @Scheduled(initialDelay = INITIAL_DELAY_3, fixedDelay = MILLIS_OF_MINUTE)
+//    fun updatePortalTaskStatus() {
+//        val portalTasks = submitter.finishedTasks.values.mapNotNull { it.task.companionPortalTask }
+//        if (portalTasks.isEmpty()) {
+//            return
+//        }
+//
+//        portalTasks.forEach { it.status = "Finished" }
+//        portalTaskRepository.saveAll(portalTasks)
+//
+//        portalTasks.forEach { submitter.finishedTasks.remove(it.serverTaskId) }
+//    }
 
     @Scheduled(initialDelay = INITIAL_DELAY_3, fixedDelay = 30 * MILLIS_OF_SECOND)
     fun synchronizeProducts() {

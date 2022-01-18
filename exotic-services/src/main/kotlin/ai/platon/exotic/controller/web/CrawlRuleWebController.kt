@@ -1,9 +1,10 @@
 package ai.platon.exotic.controller.web
 
-import ai.platon.exotic.crawl.entity.CrawlRule
+import ai.platon.exotic.driver.crawl.entity.CrawlRule
 import ai.platon.exotic.common.jackson.prettyScentObjectWritter
 import ai.platon.exotic.component.CrawlTaskRunner
-import ai.platon.exotic.persistence.CrawlRuleRepository
+import ai.platon.exotic.persist.CrawlRuleRepository
+import ai.platon.pulsar.common.ResourceLoader
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Controller
@@ -50,6 +51,15 @@ class CrawlRuleWebController(
         }
 
         println(prettyScentObjectWritter().writeValueAsString(rule))
+
+        if (rule.portalUrls.contains("jd.com")) {
+            val sqlTemplate = ResourceLoader.readAllLines("sites/jd/template/extract/x-item.sql")
+                .filter { line: String -> !line.startsWith("-- ") }
+                .filter { line: String -> line.isNotBlank() }
+                .joinToString("\n")
+            rule.outLinkSelector = "#J_goodsList li[data-sku] a[href~=item]"
+            rule.sqlTemplate = sqlTemplate
+        }
 
         rule.adjustFields()
         repository.save(rule)

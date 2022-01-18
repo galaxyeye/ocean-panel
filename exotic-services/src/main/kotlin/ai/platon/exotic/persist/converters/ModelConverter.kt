@@ -1,4 +1,4 @@
-package ai.platon.exotic.persistence.converters
+package ai.platon.exotic.persist.converters
 
 import org.apache.commons.lang3.StringUtils
 

@@ -1,6 +1,7 @@
-package ai.platon.exotic.crawl.entity
+package ai.platon.exotic.driver.crawl.entity
 
-import ai.platon.exotic.common.EPOCH_LDT
+import ai.platon.exotic.driver.common.EPOCH_LDT
+import ai.platon.exotic.driver.crawl.scraper.TaskStatus
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
@@ -25,7 +26,7 @@ class PortalTask(
     @Column(name = "id", nullable = false)
     var id: Long? = null
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     var rule: CrawlRule? = null
 
     /**
@@ -33,7 +34,7 @@ class PortalTask(
      * */
     var serverTaskId: String = ""
 
-    var assignedCount: Int = 0
+    var submittedCount: Int = 0
 
     var successCount: Int = 0
 
@@ -45,10 +46,7 @@ class PortalTask(
 
     var startTime: LocalDateTime = EPOCH_LDT
 
-    /**
-     * Created, Running, Finished, Timeout
-     * */
-    var status: String = "Created"
+    var status: TaskStatus = TaskStatus.CREATED
 
     @CreatedDate
     var createdDate: LocalDateTime = LocalDateTime.now()

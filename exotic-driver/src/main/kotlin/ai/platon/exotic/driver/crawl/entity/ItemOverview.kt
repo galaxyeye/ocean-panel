@@ -1,4 +1,4 @@
-package ai.platon.exotic.crawl.entity
+package ai.platon.exotic.driver.crawl.entity
 
 class ItemOverview(
     var href: String

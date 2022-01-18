@@ -1,7 +1,7 @@
 package ai.platon.exotic.controller.api
 
-import ai.platon.exotic.crawl.entity.CrawlRule
-import ai.platon.exotic.persistence.CrawlRuleRepository
+import ai.platon.exotic.driver.crawl.entity.CrawlRule
+import ai.platon.exotic.persist.CrawlRuleRepository
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 
