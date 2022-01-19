@@ -25,14 +25,8 @@
 		</repository>
 
 		<repository>
-			<id>sonatype-snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
+			<id>platon.ai</id>
+			<url>http://platonic.fun/repo/</url>
 		</repository>
 	</repositories>
 
