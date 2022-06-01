@@ -1,1 +1,1 @@
-Project exotic star is a professional version of project pulsar.
+Ocean panel is a test project now, you can do anything with it, but the unit tests must pass.
